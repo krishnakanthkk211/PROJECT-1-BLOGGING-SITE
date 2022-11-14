@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 app.use("/", route)
 
-mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.mongodb.net/Aman_project_1?retryWrites=true&w=majority",{
+mongoose.connect("mongodb+srv://amanprajapat82780:Lucky82780@newproject.3qdy8y3.mongodb.net/project_1?retryWrites=true&w=majority",{
     useNewUrlParser:true
 }).then(()=>{console.log("Mongoose connected")})
 .catch((err)=>console.log(err))
