@@ -7,7 +7,7 @@ const createAuthor = async function (req, res) {
         let { fname, lname, title, email, password } = data;
 
         if (!fname || !lname || !title || !email || !password) {
-            res.status(400).send("All fields are mandatory")
+            return res.status(400).send("All fields are mandatory")
         }
 
         function validateEmail(email) {
@@ -25,9 +25,9 @@ const createAuthor = async function (req, res) {
 
 
         if (!checkEmail) {
-            res.status(400).send("Please enter a valid Email")
+            return res.status(400).send("Please enter a valid Email")
         }else if(!checkPass) {
-            res.status(400).send("Please enter a valid Password")
+            return res.status(400).send("Please enter a valid Password")
         }
         else {
             let result = await authorModel.create(data);
