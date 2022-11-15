@@ -10,7 +10,7 @@ const blogSchema = new mongoose.Schema({
         required:true
     },
     authorId:{
-        type:String,
+        type:mongoose.Schema.Types.ObjectId,
         ref: 'Author'
     },
     tags:{
@@ -25,14 +25,14 @@ const blogSchema = new mongoose.Schema({
         type:[String]
     },
     deletedAt:{
-        type:Date
+        type:String
     },
     isDeleted:{
         type:Boolean,
         default:false
     },
     publishedAt:{
-        type:Date
+        type:String
     },
     isPublished:{
         type:Boolean,

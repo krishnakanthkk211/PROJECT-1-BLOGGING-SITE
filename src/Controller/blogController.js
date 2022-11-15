@@ -52,6 +52,7 @@ const getBlogs = async function (req, res) {
 
 const updateBlog = async function(req, res){
 
+    try{
     let blogId = req.params.blogId
 
     if(!isValidObjectId(blogId)){return res.status(400).send({status:false, msg:"Please enter valid blog Id"})}
@@ -74,8 +75,11 @@ const updateBlog = async function(req, res){
     if(tags){obj2.tags = tags}
     if(subcategory){obj2.subcategory = subcategory}
     let x = await blogModel.findByIdAndUpdate({_id:blogId},{$push:obj2})
-    let result = await blogModel.findByIdAndUpdate({_id:blogId},{$set:obj1},{new:true})
+    let result = await blogModel.findByIdAndUpdate({_id:blogId},{$set:obj1},{new:true}).populate("authorId")
     res.status(200).send({status:true, msg:result})
+ }catch(err){
+    res.status(500).send(err.message)
+ }
     
 }
 
