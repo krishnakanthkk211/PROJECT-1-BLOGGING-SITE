@@ -11,7 +11,7 @@ const authentication = function (req, res, next) {
         try{
             decode = jwt.verify(token, "blogging site")
         }catch(err){
-            return res.status(401).send({status: false, msg: "authentication failed"})
+           return res.status(401).send({status: false, msg: "authentication failed"})
         }
 
         req.decode = decode;
@@ -32,10 +32,10 @@ const autherization = async function (req, res, next) {
             blogDocx = await blogModel.findById(blogId)
         }
 
-        let queryData = req.query
-        if(queryData){
-            blogDocx = await blogModel.findOne(queryData)
-        }
+        // let queryData = req.query
+        // if(queryData){
+        //     blogDocx = await blogModel.findOne(queryData)
+        // }
 
         if(!blogDocx){return res.status(404).send({ status: false, msg: "blog not found" })}
        

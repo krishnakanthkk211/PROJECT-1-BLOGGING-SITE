@@ -24,18 +24,29 @@ const createAuthor = async function (req, res) {
         let data = req.body;
         let { fname, lname, title, email, password } = data;
 
-        if (!fname || !lname || !title || !email || !password) {
-            return res.status(400).send({status:false, msg:"All fields are mandatory"})
+        if (!fname && !lname && !title && !email && !password) {
+            return res.status(400).send({status:false, msg:"Please enter personal details"})
         }
 
+        function isValidname(firstname){
+           return (typeof firstname !== "string" ||/[0-9]+/g.test(firstname))?false:true
+        }
+        if(!isValidname(fname)){ return res.status(400).send({status:false, msg:"Please enter a valid fname"})}
+        if(!isValidname(lname)){ return res.status(400).send({status:false, msg:"Please enter a valid lname"})}
+        if(!fname){ return res.status(400).send({status:false, msg:"Please enter fname"})}
+        if(!lname){return res.status(400).send({status:false, msg:"Please enter lname"}) }
+        if(!title){ return res.status(400).send({status:false, msg:"Please enter title"})}
+        if(!email){ return res.status(400).send({status:false, msg:"Please enter email"})}
+        if(!password){return res.status(400).send({status:false, msg:"Please enter password"})}
+
         let checkEmail = validateEmail(email)           //it returns true/false
-        if (!checkEmail){return res.status(400).send({status:false, msg:"Please enter a valid Email"})}
+        if (!checkEmail) { return res.status(400).send({ status: false, msg: "Please enter a valid Email" }) }
         let checkPass = checkPassword(password)
-        if (!checkPass){return res.status(400).send({status:false, msg:"Please enter a valid Password"})}
+        if (!checkPass) { return res.status(400).send({ status: false, msg: "Please enter a valid Password" }) }
 
         let result = await authorModel.create(data);
         res.status(201).send({ status: true, msg: result })
-        
+
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -46,26 +57,31 @@ const createAuthor = async function (req, res) {
 
 const authorLogin = async function (req, res) {
 
-    let email = req.body.email
-    let pass = req.body.password
+    try {
+        let email = req.body.email
+        let pass = req.body.password
 
-    if (!email) { return res.status(400).send({ status: false, msg: "Please enter your email" }) }
-    if (!pass) { return res.status(400).send({ status: false, msg: "Please enter password" }) }
+        if (!email) { return res.status(400).send({ status: false, msg: "Please enter your email" }) }
+        if (!pass) { return res.status(400).send({ status: false, msg: "Please enter password" }) }
 
-    let checkEmail = validateEmail(email)
-    if (!checkEmail) { return res.status(400).send({ status: false, msg: "Please enter a valid Email" }) }
-    let checkPass = checkPassword(pass)
-    if (!checkPass) { return res.status(400).send({ status: false, msg: "Please enter a valid Password" }) }
+        let checkEmail = validateEmail(email)
+        if (!checkEmail) { return res.status(400).send({ status: false, msg: "Please enter a valid Email" }) }
+        let checkPass = checkPassword(pass)
+        if (!checkPass) { return res.status(400).send({ status: false, msg: "Please enter a valid Password" }) }
 
 
-    let authorEmail = await authorModel.findOne({ email: email })
-    let authorEP = await authorModel.findOne({ email: email, password: pass })
+        let authorEmail = await authorModel.findOne({ email: email })
+        let authorEP = await authorModel.findOne({ email: email, password: pass })
 
-    if (authorEmail && !authorEP) { return res.status(400).send({ status: false, msg: "Please enter a correct Password" }) }
-    else if (!authorEmail) { return res.status(404).send({ status: false, msg: "Author not found" }) }
-    else {
-        let token = jwt.sign({ authorId: authorEP._id }, "blogging site")
-        res.status(200).send({ status: true, Token: token })
+        if (authorEmail && !authorEP) { return res.status(400).send({ status: false, msg: "Please enter a correct Password" }) }
+        else if (!authorEmail) { return res.status(404).send({ status: false, msg: "Author not found" }) }
+        else {
+            let token = jwt.sign({ authorId: authorEP._id }, "blogging site")
+            res.status(200).send({ status: true, Token: token })
+        }
+
+    } catch (err) {
+        res.status(500).send({ status: false, msg: err.message })
     }
 }
 

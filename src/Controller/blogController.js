@@ -12,11 +12,17 @@ const createBlog = async function (req, res) {
         let data = req.body;
         let { title, body, authorId, tags, category, subcategory } = data;
 
-        if (!title || !body || !authorId || !tags || !category || !subcategory) {
-            res.status(400).send("All fields are mandatory")
+        if (!title && !body && !authorId && !tags && !category && !subcategory) {
+            return res.status(400).send({ status: false, msg: "Please enter detials to create blog" })
         }
-        
-        if(!isValidObjectId(authorId)){ return res.status(400).send({status: false, msg: "Please enter valid authorId" })}
+        if (!title) { return res.status(400).send({ status: false, msg: "Please enter title" }) }
+        if (!body) { return res.status(400).send({ status: false, msg: "Please enter body" }) }
+        if (!authorId) { return res.status(400).send({ status: false, msg: "Please enter authorId" }) }
+        if (!tags) { return res.status(400).send({ status: false, msg: "Please enter tags" }) }
+        if (!category) { return res.status(400).send({ status: false, msg: "Please enter category" }) }
+        if (!subcategory) { return res.status(400).send({ status: false, msg: "Please enter subcategory" }) }
+
+        if (!isValidObjectId(authorId)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) }
 
         let result = await blogModel.create(data)
         res.status(201).send({ status: true, msg: result })
@@ -39,15 +45,15 @@ const getBlogs = async function (req, res) {
         data.isPublished = true;
 
         let id = req.query.authorId
-        if(id){
-            if(!isValidObjectId(id)){return res.status(400).send({status: false, msg: "Please enter valid authorId"})}
+        if (id) {
+            if (!isValidObjectId(id)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) }
         }
 
         let result = await blogModel.find(data).populate("authorId")
 
-        if(result.length <= 0){return res.status(404).send({ status: false, msg: "blog not found" })}
-        else{
-            res.status(200).send({status: true, msg: result })
+        if (result.length == 0) { return res.status(404).send({ status: false, msg: "blog not found" }) }
+        else {
+            res.status(200).send({ status: true, msg: result })
         }
 
     } catch (err) {
@@ -116,12 +122,20 @@ const deleteByField = async function (req, res) {
 
     try {
         let data = req.query
-        let dataUpdate = {
-            isDeleted: true,
-            deletedAt: new Date().toLocaleString()
+        if (Object.keys(data).length == 0) { return res.send("Please enter attributes in url") }
+
+        let result = await blogModel.find(data)
+        if (!result) { return res.status(404).send({ status: false, msg: "blog not found" }) }
+
+        for (let i = 0; i < result.length; i++) {
+            if (result[i].authorId == req.decode.authorId) {
+                result[i].isDeleted = true
+                result[i].deletedAt = Date.now()
+                return res.status(200).send({ status: false, msg: "Deleted" })
+            }
         }
-        let result = await blogModel.updateMany(data, { $set: dataUpdate })
-        res.status(200).send({ status: true, msg: "Deleted" })
+        return res.status(403).send({ status: false, msg: "Autherisation failed" })
+
     } catch (err) {
         res.status(500).send(err.message)
     }
