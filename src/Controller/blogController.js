@@ -1,6 +1,11 @@
 const { isValidObjectId } = require("mongoose");
 const blogModel = require("../models/blogModel")
 
+
+
+
+//-----Create Blog API-----
+
 const createBlog = async function (req, res) {
 
     try {
@@ -10,6 +15,8 @@ const createBlog = async function (req, res) {
         if (!title || !body || !authorId || !tags || !category || !subcategory) {
             res.status(400).send("All fields are mandatory")
         }
+        
+        if(!isValidObjectId(authorId)){ return res.status(400).send({status: false, msg: "Please enter valid authorId" })}
 
         let result = await blogModel.create(data)
         res.status(201).send({ status: true, msg: result })
@@ -21,6 +28,9 @@ const createBlog = async function (req, res) {
 }
 
 
+
+//-----API to fetch the blogs-----
+
 const getBlogs = async function (req, res) {
 
     try {
@@ -29,26 +39,24 @@ const getBlogs = async function (req, res) {
         data.isPublished = true;
 
         let id = req.query.authorId
-        if (id) {
-            if (!isValidObjectId(id)) {
-                res.status(400).send("please enter a valid author id")
-            }
+        if(id){
+            if(!isValidObjectId(id)){return res.status(400).send({status: false, msg: "Please enter valid authorId"})}
         }
 
         let result = await blogModel.find(data).populate("authorId")
 
-        if (result.length <= 0) {
-            res.status(404).send({ status: false, msg: "blog not found" })
-        } else {
-            res.status(200).send({ status: true, msg: result })
+        if(result.length <= 0){return res.status(404).send({ status: false, msg: "blog not found" })}
+        else{
+            res.status(200).send({status: true, msg: result })
         }
 
     } catch (err) {
         res.status(500).send(err.message)
     }
-
-
 }
+
+
+//-----API to Update the fields of any Blog------
 
 const updateBlog = async function (req, res) {
 
@@ -73,17 +81,20 @@ const updateBlog = async function (req, res) {
         let x = await blogModel.findByIdAndUpdate({ _id: blogId }, { $push: obj2 })
         let result = await blogModel.findByIdAndUpdate({ _id: blogId }, { $set: obj1 }, { new: true }).populate("authorId")
         res.status(200).send({ status: true, msg: result })
+
     } catch (err) {
         res.status(500).send(err.message)
     }
 
 }
 
+
+//-------API to delete a blog by using blogId---------
+
 const deleteBlog = async function (req, res) {
 
     try {
         let blogId = req.params.blogId
-
         if (!isValidObjectId(blogId)) { return res.status(400).send({ status: false, msg: "Please enter a valid blogId" }) }
 
         let dataUpdate = {
@@ -92,10 +103,14 @@ const deleteBlog = async function (req, res) {
         }
         let result = await blogModel.findByIdAndUpdate({ _id: blogId }, { $set: dataUpdate }, { new: true })
         res.status(200).send({ status: true, msg: "Deleted" })
+
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
+
+
+//-------API to delete a Blog by any field--------
 
 const deleteByField = async function (req, res) {
 
