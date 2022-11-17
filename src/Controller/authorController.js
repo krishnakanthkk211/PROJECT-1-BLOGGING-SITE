@@ -22,11 +22,9 @@ function checkPassword(str) {
 const createAuthor = async function (req, res) {
     try {
         let data = req.body;
+        if(Object.keys(data).length==0){return res.status(400).send({status:false, msg: "Please enter personal details"})}
+        
         let { fname, lname, title, email, password } = data;
-
-        if (!fname && !lname && !title && !email && !password) {
-            return res.status(400).send({status:false, msg:"Please enter personal details"})
-        }
 
         function isValidname(firstname){
            return (typeof firstname !== "string" ||/[0-9]+/g.test(firstname))?false:true
@@ -58,9 +56,12 @@ const createAuthor = async function (req, res) {
 const authorLogin = async function (req, res) {
 
     try {
-        let email = req.body.email
-        let pass = req.body.password
+        let data = req.body
+        let email = data.email
+        let pass = data.password
 
+        if(Object.keys(data).length==0){return res.status(400).send({status:false, msg: "Please enter email and Password to Login"})}
+        
         if (!email) { return res.status(400).send({ status: false, msg: "Please enter your email" }) }
         if (!pass) { return res.status(400).send({ status: false, msg: "Please enter password" }) }
 

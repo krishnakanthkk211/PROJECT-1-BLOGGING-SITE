@@ -10,11 +10,11 @@ const createBlog = async function (req, res) {
 
     try {
         let data = req.body;
+
+        if(Object.keys(data).length==0){return res.status(400).send({status:false, msg: "Please enter detials to create blog"})}
+
         let { title, body, authorId, tags, category, subcategory } = data;
 
-        if (!title && !body && !authorId && !tags && !category && !subcategory) {
-            return res.status(400).send({ status: false, msg: "Please enter detials to create blog" })
-        }
         if (!title) { return res.status(400).send({ status: false, msg: "Please enter title" }) }
         if (!body) { return res.status(400).send({ status: false, msg: "Please enter body" }) }
         if (!authorId) { return res.status(400).send({ status: false, msg: "Please enter authorId" }) }
