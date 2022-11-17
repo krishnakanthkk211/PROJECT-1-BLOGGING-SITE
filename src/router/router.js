@@ -8,7 +8,7 @@ router.post("/author",authorController.createAuthor)
 
 router.post("/blogs", blogController.createBlog)
 
-router.get("/blogs", blogController.getBlogs)
+router.get("/blogs", middleware.authentication, blogController.getBlogs)
 
 router.put("/blogs/:blogId", middleware.authentication, middleware.authorization,  blogController.updateBlog)
 

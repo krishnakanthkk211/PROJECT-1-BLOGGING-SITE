@@ -76,7 +76,7 @@ const authorLogin = async function (req, res) {
         if (authorEmail && !authorEP) { return res.status(400).send({ status: false, msg: "Please enter a correct Password" }) }
         else if (!authorEmail) { return res.status(404).send({ status: false, msg: "Author not found" }) }
         else {
-            let token = jwt.sign({ authorId: authorEP._id }, "blogging site")
+            let token = jwt.sign({ authorId: authorEP._id, email:authorEP.email }, "blogging site")
             res.status(200).send({ status: true, Token: token })
         }
 
