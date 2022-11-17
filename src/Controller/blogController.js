@@ -121,8 +121,8 @@ const deleteBlog = async function (req, res) {
 const deleteByField = async function (req, res) {
 
     try {
-        let data = req.query
-        if (Object.keys(data).length == 0) { return res.send("Please enter attributes in url") }
+        let data = req.query 
+        if (Object.keys(data).length == 0) {return res.status(400).send("Please enter at least one attributes in url") }
 
         let result = await blogModel.find(data)
         if (!result) { return res.status(404).send({ status: false, msg: "blog not found" }) }
@@ -134,7 +134,7 @@ const deleteByField = async function (req, res) {
                 return res.status(200).send({ status: false, msg: "Deleted" })
             }
         }
-        return res.status(403).send({ status: false, msg: "Autherisation failed" })
+        return res.status(403).send({ status: false, msg: "Authorization failed" })
 
     } catch (err) {
         res.status(500).send(err.message)

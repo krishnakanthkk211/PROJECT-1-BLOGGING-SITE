@@ -22,25 +22,20 @@ const authentication = function (req, res, next) {
     }
 }
 
-const autherization = async function (req, res, next) {
+
+
+const authorization = async function (req, res, next) {
 
     try {
-        let blogDocx;
+        
         let blogId = req.params.blogId;
-        if(blogId){
-            if(!isValidObjectId(blogId)){return res.status(400).send({ status: false, msg: "Please enter a valid Id" })}
-            blogDocx = await blogModel.findById(blogId)
-        }
-
-        // let queryData = req.query
-        // if(queryData){
-        //     blogDocx = await blogModel.findOne(queryData)
-        // }
-
+        if(!isValidObjectId(blogId)){return res.status(400).send({ status: false, msg: "Please enter a valid Id" })}
+        
+        let blogDocx = await blogModel.findById(blogId)
         if(!blogDocx){return res.status(404).send({ status: false, msg: "blog not found" })}
        
         if (req.decode.authorId != blogDocx.authorId) {
-            return res.status(403).send({status: false, msg: "autherisation failed" })
+            return res.status(403).send({status: false, msg: "authorization failed" })
         } else {
             next()
         }
@@ -49,4 +44,4 @@ const autherization = async function (req, res, next) {
     }
 }
 
-module.exports = { authentication, autherization }
+module.exports = { authentication, authorization }
