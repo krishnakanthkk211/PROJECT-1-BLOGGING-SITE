@@ -40,7 +40,7 @@ const createBlog = async function (req, res) {
 const getBlogs = async function (req, res) {
 
     try {
-        let data = req.query
+        let data = req.query  
         data.isDeleted = false;
         data.isPublished = true;
 
@@ -126,12 +126,12 @@ const deleteByField = async function (req, res) {
 
         let result = await blogModel.find(data)
         if (!result) { return res.status(404).send({ status: false, msg: "blog not found" }) }
-
+        
         for (let i = 0; i < result.length; i++) {
+           
             if (result[i].authorId == req.decode.authorId) {
-                result[i].isDeleted = true
-                result[i].deletedAt = Date.now()
-                return res.status(200).send({ status: false, msg: "Deleted" })
+                let x = await blogModel.updateMany({data}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}},{new:true} )
+                return res.status(200).send({status:true, msg:"Deleted"})
             }
         }
         return res.status(403).send({ status: false, msg: "Authorization failed" })
