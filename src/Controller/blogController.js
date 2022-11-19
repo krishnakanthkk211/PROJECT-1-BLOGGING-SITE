@@ -1,5 +1,5 @@
 const { isValidObjectId } = require("mongoose");
-const blogModel = require("../models/blogModel")
+const blogModel = require("../models/blogModel");
 
 
 
@@ -10,54 +10,59 @@ const createBlog = async function (req, res) {
 
     try {
         let data = req.body;
-
-        if(Object.keys(data).length==0){return res.status(400).send({status:false, msg: "Please enter detials to create blog"})}
+        
+        if(Object.keys(data).length==0){return res.status(400).send({status:false, msg: "Please enter detials to create blog"})};
 
         let { title, body, authorId, tags, category, subcategory } = data;
 
-        if (!title) { return res.status(400).send({ status: false, msg: "Please enter title" }) }
-        if (!body) { return res.status(400).send({ status: false, msg: "Please enter body" }) }
-        if (!authorId) { return res.status(400).send({ status: false, msg: "Please enter authorId" }) }
-        if (!tags) { return res.status(400).send({ status: false, msg: "Please enter tags" }) }
-        if (!category) { return res.status(400).send({ status: false, msg: "Please enter category" }) }
-        if (!subcategory) { return res.status(400).send({ status: false, msg: "Please enter subcategory" }) }
+        if (!title) { return res.status(400).send({ status: false, msg: "Please enter title" }) };
+        if (!body) { return res.status(400).send({ status: false, msg: "Please enter body" }) };
+        if (!authorId) { return res.status(400).send({ status: false, msg: "Please enter authorId" }) };
+        if (!tags) { return res.status(400).send({ status: false, msg: "Please enter tags" }) };
+        if (!category) { return res.status(400).send({ status: false, msg: "Please enter category" }) };
+        if (!subcategory) { return res.status(400).send({ status: false, msg: "Please enter subcategory" }) };
 
-        if (!isValidObjectId(authorId)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) }
+        if (!isValidObjectId(authorId)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) };
+       
+        if(typeof(tags)!="object" || typeof(subcategory)!="object"){return res.status(400).send({status:false, msg:"Please enter tags and subcategory values in Array"})};
 
-        let result = await blogModel.create(data)
-        res.status(201).send({ status: true, msg: result })
+        if(data.isPublished==true){data.publishedAt=new Date().toLocaleString()}
+        if(data.isDeleted==true){data.deletedAt = new Date().toLocaleString()}
+
+        let result = await blogModel.create(data);
+        res.status(201).send({ status: true, data: result });
 
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send({status:false, msg:err.message});
     }
 
 }
 
 
 
-//-----API to fetch the blogs-----
+//----- API to fetch the blogs -----
 
 const getBlogs = async function (req, res) {
 
     try {
-        let data = req.query  
+        let data = req.query;  
         data.isDeleted = false;
         data.isPublished = true;
 
-        let id = req.query.authorId
+        let id = req.query.authorId;
         if (id) {
-            if (!isValidObjectId(id)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) }
+            if (!isValidObjectId(id)) { return res.status(400).send({ status: false, msg: "Please enter valid authorId" }) };
         }
 
-        let result = await blogModel.find(data).populate("authorId")
+        let result = await blogModel.find(data).populate("authorId");
 
-        if (result.length == 0) { return res.status(404).send({ status: false, msg: "blog not found" }) }
-        else {
-            res.status(200).send({ status: true, msg: result })
-        }
+        if(result.length == 0){return res.status(404).send({status: false, msg: "Blog not found"})}
+        else{
+            res.status(200).send({ status: true, data: result });
+        };
 
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send({status:false, msg:err.message});
     }
 }
 
@@ -81,17 +86,18 @@ const updateBlog = async function (req, res) {
         obj1.isPublished = true
         obj1.publishedAt = new Date().toLocaleString()
 
-        if (tags) { obj2.tags = tags }
+        if (tags) { obj2.tags = tags}
         if (subcategory) { obj2.subcategory = subcategory }
 
-        let x = await blogModel.findByIdAndUpdate({ _id: blogId }, { $push: obj2 })
-        let result = await blogModel.findByIdAndUpdate({ _id: blogId }, { $set: obj1 }, { new: true }).populate("authorId")
-        res.status(200).send({ status: true, msg: result })
-
+        let blogData = await blogModel.findById({_id : blogId})
+        if(blogData.isDeleted == true){return res.status(400).send({status:false, msg:"This Blog is Deleted"})}
+        else{
+            let result = await blogModel.findByIdAndUpdate({ _id: blogId },{ $set: obj1, $push: obj2}, { new: true })
+            res.status(200).send({ status: true, data: result })
+        }
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send({status:false, msg:err.message})
     }
-
 }
 
 
@@ -107,11 +113,14 @@ const deleteBlog = async function (req, res) {
             isDeleted: true,
             deletedAt: new Date().toLocaleString()
         }
-        let result = await blogModel.findByIdAndUpdate({ _id: blogId }, { $set: dataUpdate }, { new: true })
-        res.status(200).send({ status: true, msg: "Deleted" })
+        let blogData = await blogModel.findById({_id : blogId})
+        if(blogData.isDeleted == true){return res.status(400).send({status:false, msg:"Blog is already Deleted"})}
+
+        await blogModel.findByIdAndUpdate({ _id: blogId }, { $set: dataUpdate })
+        res.status(200).send({ status: true, msg: "Deleted"})
 
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send({status:false, msg:err.message})
     }
 }
 
@@ -130,14 +139,14 @@ const deleteByField = async function (req, res) {
         for (let i = 0; i < result.length; i++) {
            
             if (result[i].authorId == req.decode.authorId) {
-                let x = await blogModel.updateMany({data}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}},{new:true} )
+                await blogModel.updateMany({data}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}})
                 return res.status(200).send({status:true, msg:"Deleted"})
             }
         }
         return res.status(403).send({ status: false, msg: "Authorization failed" })
 
     } catch (err) {
-        res.status(500).send(err.message)
+        res.status(500).send({status:false, msg:err.message})
     }
 }
 

@@ -3,6 +3,7 @@ const { isValidObjectId } = require("mongoose")
 const blogModel = require("../models/blogModel")
 
 const authentication = function (req, res, next) {
+    
     try {
         let token = req.headers["x-api-key"]
         if (!token) { return res.status(400).send({ status: false, msg: "Header key is missing" }) }
