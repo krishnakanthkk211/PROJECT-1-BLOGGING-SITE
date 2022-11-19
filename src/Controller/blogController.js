@@ -134,12 +134,14 @@ const deleteByField = async function (req, res) {
         if (Object.keys(data).length == 0) {return res.status(400).send("Please enter at least one attributes in url") }
 
         let result = await blogModel.find(data)
-        if (!result) { return res.status(404).send({ status: false, msg: "blog not found" }) }
+        if (result.length==0) { return res.status(404).send({ status: false, msg: "Blog not found" }) }
         
-        for (let i = 0; i < result.length; i++) {
-           
+        for (let i = 0; i<result.length; i++) {
+
             if (result[i].authorId == req.decode.authorId) {
-                await blogModel.updateMany({data}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}})
+
+                await blogModel.findByIdAndUpdate({_id:result[i]._id}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}})
+                console.log(x)
                 return res.status(200).send({status:true, msg:"Deleted"})
             }
         }
@@ -149,5 +151,6 @@ const deleteByField = async function (req, res) {
         res.status(500).send({status:false, msg:err.message})
     }
 }
+
 
 module.exports = { createBlog, getBlogs, updateBlog, deleteBlog, deleteByField }

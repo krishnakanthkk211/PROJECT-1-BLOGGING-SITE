@@ -18,4 +18,5 @@ router.delete("/blogs", middleware.authentication,  blogController.deleteByField
 
 router.post("/login", authorController.authorLogin)
 
+
 module.exports = router;
