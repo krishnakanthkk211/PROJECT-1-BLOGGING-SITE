@@ -46,7 +46,7 @@ const createAuthor = async function (req, res) {
         let checkEmail = validateEmail(email)           //it returns true/false
         if (!checkEmail) { return res.status(400).send({ status: false, msg: "Please enter a valid Email" }) }
         let authorData = await authorModel.find({email:email})
-        if(authorData.length != 0){return res.send({status:false, msg:"Account already created, Please login"})}
+        if(authorData.length != 0){return res.send({status:false, msg:"email already existed,please use differnt email"})}
         
         let checkPass = checkPassword(password)
         if (!checkPass) { return res.status(400).send({ status: false, msg: "Please enter a valid Password" })}

@@ -92,7 +92,7 @@ const updateBlog = async function (req, res) {
         let blogData = await blogModel.findById({_id : blogId})
         if(blogData.isDeleted == true){return res.status(400).send({status:false, msg:"This Blog is Deleted"})}
         else{
-            let result = await blogModel.findByIdAndUpdate({ _id: blogId },{ $set: obj1, $push: obj2}, { new: true })
+            let result = await blogModel.findByIdAndUpdate({ _id: blogId },{ $set:obj1, $push: obj2}, { new: true })
             res.status(200).send({ status: true, data: result })
         }
     } catch (err) {
@@ -127,7 +127,7 @@ const deleteBlog = async function (req, res) {
 
 //-------API to delete a Blog by any field--------
 
-const deleteByField = async function (req, res) {
+const querydelete = async function (req, res) {
 
     try {
         let data = req.query 
@@ -141,7 +141,7 @@ const deleteByField = async function (req, res) {
             if (result[i].authorId == req.decode.authorId) {
 
                 await blogModel.findByIdAndUpdate({_id:result[i]._id}, {$set:{isDeleted:true, deletedAt: new Date().toLocaleString()}})
-                console.log(x)
+               
                 return res.status(200).send({status:true, msg:"Deleted"})
             }
         }
@@ -153,4 +153,4 @@ const deleteByField = async function (req, res) {
 }
 
 
-module.exports = { createBlog, getBlogs, updateBlog, deleteBlog, deleteByField }
+module.exports = { createBlog, getBlogs, updateBlog, deleteBlog, querydelete }
