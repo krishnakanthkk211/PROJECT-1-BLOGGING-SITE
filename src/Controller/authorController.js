@@ -43,10 +43,10 @@ const createAuthor = async function (req, res) {
         let enums = authorModel.schema.obj.title.enum;
         if(!enums.includes(title)){return res.status(400).send({status:false, msg :"Please enter a valid title"})}
         
-        let checkEmail = validateEmail(email)           //it returns true/false
+        let checkEmail = validateEmail(email)           
         if (!checkEmail) { return res.status(400).send({ status: false, msg: "Please enter a valid Email" }) }
         let authorData = await authorModel.find({email:email})
-        if(authorData.length != 0){return res.send({status:false, msg:"email already existed,please use differnt email"})}
+        if(authorData.length != 0){return res.status(400).send({status:false, msg:"email already existed,please use differnt email"})}
         
         let checkPass = checkPassword(password)
         if (!checkPass) { return res.status(400).send({ status: false, msg: "Please enter a valid Password" })}

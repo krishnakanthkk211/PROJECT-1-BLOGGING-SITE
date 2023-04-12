@@ -1,4 +1,5 @@
 # Lithium
+this is a blogging site project role is backend developer
 
 Repository for backend cohort - Lithium
 
